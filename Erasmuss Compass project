@@ -1,0 +1,314 @@
+def main():
+    print_header()
+
+    scores = get_survey_scores()
+
+    group_scores = calculate_group_scores(scores)
+
+    weights = get_weights()
+
+    expected_utility = calculate_expected_utility(group_scores, weights)
+
+    utility_percentage = (expected_utility / 5) * 100
+
+    show_result(expected_utility, utility_percentage, group_scores, weights)
+
+
+def print_header():
+    print("================================")
+    print("        ERASMUS COMPASS")
+    print("================================")
+    print("")
+    print("This tool helps students evaluate whether Erasmus is the right decision.")
+    print("")
+    print("Answer each statement from 1 to 5:")
+    print("1 = strongly disagree")
+    print("2 = disagree")
+    print("3 = neutral / unsure")
+    print("4 = agree")
+    print("5 = strongly agree")
+    print("")
+
+
+def get_survey_scores():
+    scores = {}
+
+    scores["growth"] = get_score("Erasmus will help me grow as a person.")
+    scores["career"] = get_score(
+        "Erasmus will improve my future career opportunities.")
+    scores["finance"] = get_score("Erasmus is financially manageable for me.")
+    scores["reversibility"] = get_score(
+        "If Erasmus does not go as planned, I can recover from the decision.")
+    scores["independence"] = get_score(
+        "I am ready to handle daily life in another country.")
+    scores["regret"] = get_score(
+        "I think I would regret not taking this opportunity.")
+    scores["emotional"] = get_score(
+        "I feel emotionally ready to live and study abroad.")
+    scores["excitement"] = get_score(
+        "When I think about Erasmus, I feel more excited than afraid.")
+
+    return scores
+
+
+def get_score(statement):
+    print(statement)
+
+    while True:
+        try:
+            score = float(input("Your answer (1-5): "))
+            if 1 <= score <= 5:
+                print("")
+                return score
+            else:
+                print("❌ Please enter a number between 1 and 5.")
+        except ValueError:
+            print("❌ That's not a valid number. Please try again.")
+    print("")
+
+
+def calculate_group_scores(scores):
+    group_scores = {}
+
+    group_scores["Personal achievement development"] = (
+        scores["growth"] + scores["career"]
+    ) / 2
+
+    group_scores["Financial"] = scores["finance"]
+
+    group_scores["Risk"] = (
+        scores["reversibility"] + scores["independence"]
+    ) / 2
+
+    group_scores["Psychological"] = (
+        scores["regret"] + scores["emotional"] + scores["excitement"]
+    ) / 3
+
+    return group_scores
+
+
+def get_weights():
+    print("================================")
+    print("STEP 2 — Set your priorities")
+    print("================================")
+    print("")
+    print("Now decide how important each area is to you.")
+    print("The total of 4 weights (Personal achievement development, Finacial, Risk, Psychological) must equal 100.")
+    print("")
+
+    while True:
+        weights = {}
+
+        weights["Personal achievement development"] = get_weight(
+            "Personal achievement development weight")
+        weights["Financial"] = get_weight("Financial weight")
+        weights["Risk"] = get_weight("Risk weight")
+        weights["Psychological"] = get_weight("Psychological weight")
+
+        total_weight = sum(weights.values())
+
+        if total_weight == 100:
+            return weights
+
+        print("")
+        print(f"Your total is {total_weight}.")
+        print("The total priority weight must be exactly 100.")
+        print("Please try again.")
+        print("")
+
+
+def get_weight(name):
+    while True:
+        try:
+            weight = int(input(f"{name} (0-100): "))
+            if 0 <= weight <= 100:
+                return weight
+            else:
+                print("❌ Please enter a number between 0 and 100.")
+        except ValueError:
+            print("❌ That's not a valid number. Please try again.")
+
+
+def calculate_expected_utility(group_scores, weights):
+    total = 0
+
+    for category in group_scores:
+        total += group_scores[category] * weights[category]
+
+    expected_utility = total / 100
+
+    return expected_utility
+
+
+def show_result(expected_utility, utility_percentage, group_scores, weights):
+    print("")
+    print("================================")
+    print("            RESULT")
+    print("================================")
+    print("")
+    print(f"Expected Utility: {round(expected_utility, 2)} / 5")
+    print(f"Decision Score: {round(utility_percentage, 1)}%")
+    print("")
+
+    print_recommendation(utility_percentage)
+
+    print("")
+    print("Decision Dimension Scores:")
+    print_dimension_scores(group_scores, weights)
+
+    print("")
+    print("Advanced Analysis:")
+    print_advanced_analysis(group_scores, weights, utility_percentage)
+
+    print("")
+    print("Thank you for using Erasmus Compass.")
+
+
+def print_recommendation(utility_percentage):
+    if utility_percentage >= 85:
+        print("STRONG RECOMMENDATION: GO TO ERASMUS")
+    elif utility_percentage >= 70:
+        print("POSITIVE RECOMMENDATION: ERASMUS IS PROBABLY WORTH IT")
+    elif utility_percentage >= 55:
+        print("BALANCED DECISION: THINK CAREFULLY")
+    elif utility_percentage >= 40:
+        print("HIGH UNCERTAINTY: PREPARE MORE BEFORE DECIDING")
+    else:
+        print("NOT RECOMMENDED RIGHT NOW")
+
+
+def print_dimension_scores(group_scores, weights):
+    for category in group_scores:
+        print(
+            f"- {category}: {round(group_scores[category], 2)} / 5 | Weight: {weights[category]}%")
+
+
+def print_advanced_analysis(group_scores, weights, utility_percentage):
+    strongest_categories = get_categories_with_max_value(group_scores)
+    weakest_categories = get_categories_with_min_value(group_scores)
+    highest_priority_categories = get_categories_with_max_value(weights)
+
+    print("Motivation profile:")
+    print_list_sentence("Your strongest evaluated area(s):",
+                        strongest_categories)
+
+    print("")
+    print("Main concern:")
+    print_list_sentence("Your weakest evaluated area(s):", weakest_categories)
+
+    print("")
+    print("Priority profile:")
+    print_list_sentence("Your highest priority area(s):",
+                        highest_priority_categories)
+
+    print("")
+    print("Decision alignment:")
+    print_alignment_analysis(group_scores, weights)
+
+    print("")
+    print("Interpretation:")
+    print_interpretation(group_scores, weights, utility_percentage)
+
+
+def get_categories_with_max_value(dictionary):
+    max_value = max(dictionary.values())
+    categories = []
+
+    for category in dictionary:
+        if dictionary[category] == max_value:
+            categories.append(category)
+
+    return categories
+
+
+def get_categories_with_min_value(dictionary):
+    min_value = min(dictionary.values())
+    categories = []
+
+    for category in dictionary:
+        if dictionary[category] == min_value:
+            categories.append(category)
+
+    return categories
+
+
+def print_list_sentence(start_text, items):
+    print(start_text)
+
+    for item in items:
+        print(f"- {item}")
+
+
+def print_alignment_analysis(group_scores, weights):
+    high_priority_categories = []
+
+    for category in weights:
+        if weights[category] >= 30:
+            high_priority_categories.append(category)
+
+    if len(high_priority_categories) == 0:
+        print("- Your priorities are relatively balanced across all areas.")
+        return
+
+    for category in high_priority_categories:
+        score = group_scores[category]
+
+        if score >= 4:
+            print(
+                f"- {category} is highly important to you and also scores strongly. This supports the decision.")
+        elif score >= 3:
+            print(
+                f"- {category} is highly important to you, but your score is moderate. This area needs reflection.")
+        else:
+            print(
+                f"- {category} is highly important to you, but currently scores low. This may create internal conflict.")
+
+
+def print_interpretation(group_scores, weights, utility_percentage):
+    personal = group_scores["Personal achievement development"]
+    financial = group_scores["Financial"]
+    risk = group_scores["Risk"]
+    psychological = group_scores["Psychological"]
+
+    if utility_percentage >= 70:
+        print("- Overall, your answers suggest that Erasmus has strong expected value for you.")
+    elif utility_percentage >= 55:
+        print("- Your result suggests a balanced decision. Erasmus may be valuable, but not without concerns.")
+    else:
+        print("- Your result suggests that you may need more preparation or clarity before choosing Erasmus.")
+
+    if personal >= 4 and psychological >= 4:
+        print("- You show strong growth motivation and psychological readiness.")
+    elif personal >= 4 and psychological < 3:
+        print("- You see strong growth potential, but your psychological readiness may need attention.")
+    elif personal < 3 and psychological >= 4:
+        print("- You feel emotionally drawn to Erasmus, but the personal-development value is less clear.")
+
+    if financial < 3:
+        print("- Financial readiness is a warning area. You may need to review budget, grants, housing, and living costs.")
+    elif financial >= 4:
+        print("- Financial readiness appears strong, which reduces practical pressure.")
+
+    if risk < 3:
+        print("- Risk resilience is low. You may need a clearer backup plan before making the decision.")
+    elif risk >= 4:
+        print("- Risk resilience appears strong. You seem prepared to handle uncertainty.")
+
+    if psychological >= 4 and financial < 3:
+        print("- Your motivation is strong, but financial concerns may become the main practical barrier.")
+
+    if weights["Financial"] >= 30 and financial < 3:
+        print("- Financial security is one of your top priorities, but your financial score is low. This is the most important issue to solve.")
+
+    if weights["Risk"] >= 30 and risk < 3:
+        print("- Risk is one of your top priorities, but your current risk-readiness score is low. Planning could significantly improve your confidence.")
+
+    if weights["Psychological"] >= 30 and psychological >= 4:
+        print("- Psychological readiness is highly important to you and currently strong. This makes the decision feel personally meaningful.")
+
+    if weights["Personal achievement development"] >= 30 and personal >= 4:
+        print("- Personal development is highly important to you and currently strong. This supports Erasmus as a growth-oriented choice.")
+
+
+if __name__ == '__main__':
+    main()
