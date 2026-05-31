@@ -1,4 +1,4 @@
-# Erasmus-Compass-2.0
+# Erasmus-Compass
 Erasmus Compass is a Python-based decision-support tool designed to help students evaluate whether participating in the Erasmus exchange programme is the right decision for them.
 
 The project combines elements of decision analysis, expected utility theory, and personalised weighting systems to transform subjective feelings into a structured evaluation process. Instead of providing a simple “yes” or “no” answer, the program analyses multiple dimensions of the decision and generates a personalised recommendation based on the user’s priorities and self-assessment.
